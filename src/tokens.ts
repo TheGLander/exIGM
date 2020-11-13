@@ -38,13 +38,10 @@ const tokenTypes: TokenType[] = [
 	{ regex: /\*(?!\|)[a-zA-Z|0-9]+(?<!\|)/, name: "thingKey" },
 	{ regex: /\/\/|\/\*|\*\//, name: "comment" },
 	// A general purpose tag, eg. no tooltip
-	{ regex: /[\w ]+(?=\n)/, name: "tag" },
+	{ regex: /[\w ]+(?=\n|$)/, name: "tag" },
 ]
 
 const expressionTokenTypes: TokenType[] = [
-	// Tags
-	{ regex: /<(b|i|u|t|q|(?:#[\da-f]{3}))><\/\1>/, name: "tag" },
-	{ regex: /<(\/|\/\/|\.)>/, name: "openTag" },
 	// Commands & stuff
 	{ regex: /end/, name: "end" },
 	{ regex: /if|else/, name: "flowStatement" },
@@ -107,7 +104,7 @@ export interface Token {
  * Splits code into tokens
  * @param code The code to split into tokens
  */
-export default function tokenize(code: string): Token[] {
+export function tokenize(code: string): Token[] {
 	const tokens: Token[] = []
 	/**
 	 * Tries to find a matching token for the current code
@@ -141,14 +138,4 @@ Leftover code: ${code.trim()}`
 	return tokens
 }
 
-console.log(
-	tokenize(`Let's make a game!
-	on click:if (true = true) 
-	yield 5 abc1
-	else if (true = false)
-	yield 5 abc2
-	end
-	`)
-		.map(val => JSON.stringify(val))
-		.join("\n")
-)
+export default tokenize
