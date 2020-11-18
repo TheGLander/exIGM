@@ -2,6 +2,7 @@ import { Token } from "../tokens"
 import tokenHelpers from "./helpers"
 import { SectionBase } from "../astGen"
 import { LangNode } from "../astGen"
+import { ParseError } from "../errors"
 /**
  *  The name of an id in an id entry, ex
  * `*abc: def` `abc` is the id identifier
@@ -51,7 +52,7 @@ export function parseIdList<T extends LangNode>(
 	const { eatToken, virtualEat, virtualEatOld } = tokenHelpers(tokens)
 	while (tokens.length > 0) {
 		let token = eatToken()
-		if (token.name !== "thingKey") return null
+		if (token.name !== "thingKey") throw new ParseError("an id list", token)
 		const names = token.match.substr(1).split("|")
 
 		for (

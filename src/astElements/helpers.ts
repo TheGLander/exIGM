@@ -17,7 +17,8 @@ export default function tokenHelpers(tokens: Token[]) {
 	 * Returns a token without removing it
 	 */
 	function virtualEat() {
-		return tokens[virtualPosition++]
+		if (virtualPosition >= tokens.length) return null
+		else return tokens[virtualPosition++]
 	}
 	/**
 	 * Eats all tokens before the current virtual token

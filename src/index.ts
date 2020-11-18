@@ -1,17 +1,22 @@
 /* eslint-disable no-debugger */
 import { tokenize } from "./tokens"
+import { parseLangObject } from "./astElements/object"
 import { parseIdList } from "./astElements/idList"
 
-const input = `*hi|bye`
+const input = `*abc
+poo: def
+ab: cd
+test
+*mum
+is: mega cute
+mega sure: yup
+abc`
 
 const tokens = tokenize(input)
 
 console.log(`Input:
 ${input}`)
 
-console.log(`Output:
-${parseIdList(tokens, tokens => {
-	return { name: "hi", bonusCrap: tokens }
-})
-	.value.map(val => val.key.value.join(" or "))
-	.join("\n")}`)
+console.log(parseIdList([...tokens], parseLangObject))
+
+debugger

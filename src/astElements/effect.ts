@@ -4,15 +4,15 @@ import { LangNode } from "../astGen"
 import { Token } from "../tokens"
 
 export interface EffectStatement extends LangNode {
-	name: "StringInstance"
+	name: "EffectStatement"
 	value: string
 }
 
 /**
- * Converts a token into a string instance
+ * Converts a token into an effect
  */
-export function parseString(string: Token): EffectStatement {
-	return { name: "StringInstance", value: string.match }
+export function parseEffect(string: Token): EffectStatement {
+	return { name: "EffectStatement", value: string.match }
 }
 /*
   Tags

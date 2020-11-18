@@ -1,3 +1,4 @@
+import { TokenError } from "./errors"
 interface TokenType {
 	regex: RegExp
 	name: string
@@ -67,6 +68,7 @@ const expressionTokenTypes: TokenType[] = [
 ]
 
 export function tokenizeExpression(code: string): Token[] {
+	let position = 0
 	const tokens: Token[] = []
 	/**
 	 * Tries to find a matching token for the current code
@@ -75,19 +77,18 @@ export function tokenizeExpression(code: string): Token[] {
 		for (const type of expressionTokenTypes) {
 			const res = type.regex.exec(code)
 			if (res?.index !== 0) continue
-			return { match: res[0], name: type.name }
+			return { match: res[0], name: type.name, position }
 		}
 		return null
 	}
 	while (code !== "") {
 		const token = generateToken()
-		if (token === null)
-			throw new Error(
-				`Can't tokenize the expression!
-Leftover code: ${code.trim()}`
-			)
+		if (token === null) throw new TokenError(code)
+		position += token.match.length
 		tokens.push(token)
+		const oldCode = code
 		code = code.substr(token.match.length).trim()
+		position += oldCode.indexOf(code)
 	}
 	return tokens
 }
@@ -98,6 +99,7 @@ Leftover code: ${code.trim()}`
 export interface Token {
 	match: string
 	name: string
+	position: number
 }
 
 /**
@@ -105,6 +107,7 @@ export interface Token {
  * @param code The code to split into tokens
  */
 export function tokenize(code: string): Token[] {
+	let position = 0
 	const tokens: Token[] = []
 	/**
 	 * Tries to find a matching token for the current code
@@ -121,19 +124,17 @@ export function tokenize(code: string): Token[] {
 				continue
 			const res = type.regex.exec(code)
 			if (res?.index !== 0) continue
-			return { match: res[0], name: type.name }
+			return { match: res[0], name: type.name, position }
 		}
 		return null
 	}
 	while (code !== "") {
 		const token = generateToken()
-		if (token === null)
-			throw new Error(
-				`Can't tokenize the code!
-Leftover code: ${code.trim()}`
-			)
+		if (token === null) throw new TokenError(code)
 		tokens.push(token)
+		const oldCode = code
 		code = code.substr(token.match.length).trim()
+		position += oldCode.indexOf(code)
 	}
 	return tokens
 }
