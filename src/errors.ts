@@ -7,7 +7,11 @@ Leftover code: ${leftoverCode}`)
 }
 
 export class ParseError extends Error {
-	constructor(public nodeType: string, failedToken: Token) {
-		super(`Couldn't parse ${nodeType} at position ${failedToken.position}`)
+	constructor(public nodeType: string, failedToken: Token | null) {
+		super(
+			`Expected ${nodeType} at ${
+				failedToken ? `position ${failedToken.position}` : "the end"
+			}, got '${failedToken?.match}'`
+		)
 	}
 }

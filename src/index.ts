@@ -1,22 +1,36 @@
 /* eslint-disable no-debugger */
-import { tokenize } from "./tokens"
-import { parseLangObject } from "./astElements/object"
-import { parseIdList } from "./astElements/idList"
+import { tokenize, tokenizeExpression } from "./tokens"
+import { genAst } from "./astGen"
+import { parseEffectExpression } from "./effectAstElements/expression"
 
-const input = `*abc
-poo: def
-ab: cd
+const input = `Let's make a game!
+abc: def
+this is a tag
+test1: test2
+Layout
+use default
+*hi
+bye: e
+Resources
+*test1|test2
+hello: world
 test
-*mum
-is: mega cute
-mega sure: yup
-abc`
+*test3
+on tick: multiply yield of :All:tag:test:notTag:notTest from test:tag:tier1:notTag:pseudoTier2:Buildings by 777
+on tick: multiply yield of :All by 10*12-5^7
+goodbye world`
+
+console.debug(`Input:
+${input}`)
 
 const tokens = tokenize(input)
 
-console.log(`Input:
-${input}`)
+console.debug("Tokens:")
+console.debug(tokens)
 
-console.log(parseIdList([...tokens], parseLangObject))
+const AST = genAst(tokens)
+
+console.debug("AST:")
+console.debug(AST)
 
 debugger

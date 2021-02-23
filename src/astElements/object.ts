@@ -14,9 +14,7 @@ export interface ObjectKey extends LangNode {
 	value: string
 }
 
-export const effectKeys = ["on click", "passive", "on tick"] as const
-
-export type EffectKeys = typeof effectKeys[number]
+export type EffectKeys = string // `on ${string}` // ESLint & Prettier doesn't support this yet lol
 
 /**
  *  The name of an effect key in an object declaration ex.
@@ -51,7 +49,7 @@ export interface ObjectDeclaration extends LangNode {
 	)[]
 }
 
-export function parseLangObject(tokens: Token[]): ObjectDeclaration | null {
+export function parseLangObject(tokens: Token[]): ObjectDeclaration {
 	const objListings: (
 		| EffectObjectInstance
 		| StringObjectInstance
@@ -60,18 +58,24 @@ export function parseLangObject(tokens: Token[]): ObjectDeclaration | null {
 	const { eatToken } = tokenHelpers(tokens)
 	while (tokens.length > 0) {
 		const token = eatToken()
-		if (token.name !== "key" && token.name !== "tag")
-			throw new ParseError("an object", token)
+		if (token?.name === "section" || token?.name === "cssSection") {
+			tokens.unshift(token)
+			break
+		}
+		if (!token || (token.name !== "key" && token.name !== "tag"))
+			throw new ParseError("an object key", token)
+
 		const name =
 			token.name === "key"
 				? token.match.substr(0, token.match.length - 1)
 				: token.match
 		if (token.name === "key") {
 			const valueToken = eatToken()
+			if (!valueToken) throw new ParseError("an object value", valueToken)
+			let value: StringInstance | EffectStatement
 
-			let value: StringInstance | EffectStatement = null
-
-			if (effectKeys.some(val => val === name)) value = parseEffect(valueToken)
+			if (name.startsWith("on ") || name === "passive")
+				value = parseEffect(valueToken)
 			else value = parseString(valueToken)
 
 			objListings.push({
@@ -79,12 +83,11 @@ export function parseLangObject(tokens: Token[]): ObjectDeclaration | null {
 				key: { name: "ObjectKey", value: name },
 				value,
 			} as EffectObjectInstance | StringObjectInstance)
-		} else {
+		} else
 			objListings.push({
 				name: "ObjectPropertyStatement",
 				value: { name: "ObjectKey", value: name },
 			})
-		}
 	}
 	return { name: "ObjectDeclaration", value: objListings }
 }

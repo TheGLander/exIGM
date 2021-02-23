@@ -10,6 +10,15 @@ interface TokenType {
 }
 
 /**
+ * A generic token
+ */
+export interface Token {
+	match: string
+	name: string
+	position: number
+}
+
+/**
  * The types of tokens the language accepts
  */
 const tokenTypes: TokenType[] = [
@@ -22,11 +31,13 @@ const tokenTypes: TokenType[] = [
 	{ regex: /CSS/, name: "cssSection" },
 	// Sorry for the mess, I blame CSS
 	{
-		regex: /(?:(?!Let's make a game!|Settings|Includes|Layout|Buttons|Buildings|Upgrades|Items|Achievements|Resources|Shinies|$).)+/s,
+		regex: /(?:(?!Let's make a game!|Settings|Includes|Layout|Buttons|Buildings|Upgrades|Items|Achievements|Resources|Shinies|$).)+/,
 		name: "cssStyle",
 		last: "cssSection",
 	},
 	// Key-value stuff
+	// Generic string value
+	{ regex: /.+(?<!\s)/, name: "value", last: "key" },
 	{ regex: /[\w ]+:/, name: "key" },
 	// Spritesheet value
 	{
@@ -34,8 +45,6 @@ const tokenTypes: TokenType[] = [
 		name: "spritesheetValue",
 		last: "key",
 	},
-	// Generic string value
-	{ regex: /.+(?<!\s)/, name: "value", last: "key" },
 	{ regex: /\*(?!\|)[a-zA-Z|0-9]+(?<!\|)/, name: "thingKey" },
 	{ regex: /\/\/|\/\*|\*\//, name: "comment" },
 	// A general purpose tag, eg. no tooltip
@@ -49,23 +58,26 @@ const expressionTokenTypes: TokenType[] = [
 	{ regex: /\$\w+/, name: "variableIdentifier" },
 	// Leaving this monstrosity up to the AST, sorry
 	{
-		regex: /increase|lower|multiply|(yield of)|(cost of)|(refund of)|(frequency of)|(duration of)|spawn|yield|lose|grant|by|do|with|show|hide|light|dim|anim|(anim icon)|log|(log\(\w+\))|toast/,
+		regex: /increase|lower|multiply|(yield of)|(cost of)|(refund of)|(frequency of)|(duration of)|spawn|yield|lose|grant|by|do|from|with|show|hide|light|dim|anim|(anim icon)|log|(log\(\w+\))|clear log|toast/,
 		name: "command",
 	},
 	// Expressions
 	{ regex: /\d+(\.\d+)?/, name: "number" },
 	{ regex: /\(|\)/, name: "parenthese" },
 	// Operations
-	{ regex: /have|no/, name: "exprKeyword" },
-	{ regex: /and|or|!/, name: "logicOperation" },
-	{ regex: /\+|-|\*|\/|%/, name: "binaryOperation" },
-	{ regex: /is|=|<|<=|>|>=/, name: "compareOperation" },
+	{ regex: /(?:have|no) \w+/, name: "exprKeyword" },
+	{ regex: /!|not/, name: "unaryOperator" },
+	{ regex: /and|or|\+|-|\*|\/|%|is|=|<|<=|>|>=|\^/, name: "binaryOperator" },
 	{
-		regex: /min|max|floor|ceil|round|roundr|random|frandom|chance/,
+		regex: /\w+(?=\s*\()/,
 		name: "function",
 	},
-	{ regex: /\w+(:\w+)*/, name: "identifier" },
+	{ regex: /,/, name: "argumentDelimiter" },
+	{ regex: /\S+/, name: "something" },
+	{ regex: /\n|;/, name: "lineDelimiter" },
 ]
+
+const nonNewlineRegex = /^(?:(?!\n)[\s\uFEFF\xA0])+|[\s\uFEFF\xA0]+$/g
 
 export function tokenizeExpression(code: string): Token[] {
 	let position = 0
@@ -87,19 +99,10 @@ export function tokenizeExpression(code: string): Token[] {
 		position += token.match.length
 		tokens.push(token)
 		const oldCode = code
-		code = code.substr(token.match.length).trim()
+		code = code.substr(token.match.length).replace(nonNewlineRegex, "")
 		position += oldCode.indexOf(code)
 	}
 	return tokens
-}
-
-/**
- * A generic token
- */
-export interface Token {
-	match: string
-	name: string
-	position: number
 }
 
 /**

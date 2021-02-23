@@ -3,6 +3,7 @@ import { Token } from "../tokens"
  * A simple factory to generate some token helpers
  * @param tokens The token list to generate the helpers from
  */
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export default function tokenHelpers(tokens: Token[]) {
 	let virtualPosition = 0
 	/**
@@ -10,8 +11,8 @@ export default function tokenHelpers(tokens: Token[]) {
 	 * Virtual eat operations are considered done, so virtual position is reset
 	 */
 	function eatToken() {
-		virtualPosition = 0
-		return tokens.shift()
+		virtualCancel()
+		return tokens.shift() ?? null
 	}
 	/**
 	 * Returns a token without removing it
@@ -25,8 +26,32 @@ export default function tokenHelpers(tokens: Token[]) {
 	 */
 	function virtualEatOld() {
 		const eatenTokens: Token[] = []
-		for (let i = 0; i < virtualPosition; i++) eatenTokens.push(tokens.shift())
+		for (let i = 0; i < virtualPosition; i++) {
+			const token = tokens.shift()
+			if (!token) break
+			eatenTokens.push(token)
+		}
+		virtualPosition = 0
 		return eatenTokens
 	}
-	return { virtualPosition, eatToken, virtualEat, virtualEatOld }
+	/**
+	 * Resets the virtual pointer
+	 */
+	function virtualCancel() {
+		virtualPosition = 0
+	}
+	/**
+	 * Peeks a token at a specified position
+	 */
+	function peekToken(offset: number): Token | null {
+		return tokens[offset + virtualPosition] ?? null
+	}
+	return {
+		virtualPosition,
+		eatToken,
+		virtualEat,
+		virtualEatOld,
+		virtualCancel,
+		peekToken,
+	}
 }
