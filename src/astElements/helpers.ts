@@ -28,8 +28,8 @@ export default function tokenHelpers(tokens: Token[]) {
 		const eatenTokens: Token[] = []
 		for (let i = 0; i < virtualPosition; i++) {
 			const token = tokens.shift()
-			if (!token) break
-			eatenTokens.push(token)
+			// Trust me
+			eatenTokens.push(token as Token)
 		}
 		virtualPosition = 0
 		return eatenTokens

@@ -31,7 +31,7 @@ const tokenTypes: TokenType[] = [
 	{ regex: /CSS/, name: "cssSection" },
 	// Sorry for the mess, I blame CSS
 	{
-		regex: /(?:(?!Let's make a game!|Settings|Includes|Layout|Buttons|Buildings|Upgrades|Items|Achievements|Resources|Shinies|$).)+/,
+		regex: /(?:(?!Let's make a game!|Settings|Includes|Layout|Buttons|Buildings|Upgrades|Items|Achievements|Resources|Shinies|$).)+/s,
 		name: "cssStyle",
 		last: "cssSection",
 	},

@@ -1,7 +1,6 @@
 /* eslint-disable no-debugger */
-import { tokenize, tokenizeExpression } from "./tokens"
+import { tokenize } from "./tokens"
 import { genAst } from "./astGen"
-import { parseEffectExpression } from "./effectAstElements/expression"
 
 const input = `Let's make a game!
 abc: def
@@ -18,7 +17,11 @@ test
 *test3
 on tick: multiply yield of :All:tag:test:notTag:notTest from test:tag:tier1:notTag:pseudoTier2:Buildings by 777
 on tick: multiply yield of :All by 10*12-5^7
-goodbye world`
+goodbye world
+CSS
+#thing {
+	color: blue;
+}`
 
 console.debug(`Input:
 ${input}`)
